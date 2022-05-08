@@ -21,15 +21,15 @@ https://console.firebase.google.com/
 
 - Add project
     - Project name: ambershellfish
-        - [v] Enable Google Analytics for this project
+        - [On] Enable Google Analytics for this project
         - Choose or create a Google Analytics account: Create new account
         - New Google Analytics account name : ambershellfish
         - Analytics location: Japan
-        - [x] Use the default settings for sharing Google Analytics data.
-        - [x] Google Products and Services
-        - [x] Benchmarking
-        - [x] Technical support
-        - [x] Account specialists
+        - [Off] Use the default settings for sharing Google Analytics data.
+        - [Off] Google Products and Services
+        - [Off] Benchmarking
+        - [Off] Technical support
+        - [Off] Account specialists
 - Project settings
     - General
         - Default GCP resource location: asia-northeast1 ( Tokyo )
