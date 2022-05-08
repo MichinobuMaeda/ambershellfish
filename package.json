@@ -1,0 +1,23 @@
+{
+  "name": "ambershellfish",
+  "version": "1.0.0",
+  "description": "Amber Shellfish",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MichinobuMaeda/ambershellfish.git"
+  },
+  "author": "Michinobu Maeda",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/MichinobuMaeda/ambershellfish/issues"
+  },
+  "homepage": "https://github.com/MichinobuMaeda/ambershellfish#readme"
+}
