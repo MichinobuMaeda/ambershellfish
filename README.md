@@ -10,6 +10,14 @@
 - yarn
 - curl
 
+```
+$ git clone git@github.com:MichinobuMaeda/ambershellfish.git
+$ cd ambershellfish
+$ yarn install:all
+$ yarn test
+$ yarn start
+```
+
 ## Create this project
 
 ### Prerequisites
@@ -129,9 +137,11 @@ $ git add .
 $ git commit -m "set up firebase env."
 ```
 
-VS code 'Ctrl + Shift + P' Preferences: Open Workspace Settings
+Edit `.vscode/settings.json` or on VS code
 
-- Extentions
+- type 'Ctrl + Shift + P'
+- type Preferences: Open Workspace Settings
+- select Extentions
     - ESLint > Lint Task Options: --config functions/.eslintrc.js functions/src/*.ts
 
 `functions/package.json`
@@ -193,6 +203,7 @@ https://github.com/MichinobuMaeda/ambershellfish/settings
 ```
 $ dart pub global activate flutterfire_cli
 $ firebase use ambershellfish-test
+$ flutterfire configure
 $ mv firebase_options.dart lib/config/firebase_options.dart
 $ cp lib/config/firebase_options.dart lib/config/firebase_options_release.dart
 ```

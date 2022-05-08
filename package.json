@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Amber Shellfish",
   "scripts": {
-    "install:all": "yarn --cwd functions install && yarn install && flutter pub get",
+    "install:all": "yarn install && yarn --cwd functions install && flutter pub get",
     "build:functions": "yarn --cwd functions lint && yarn --cwd functions build",
     "deploy:data": "firebase firestore:delete -f service/deployment",
     "test:ver0": "curl http://localhost:5001/ambershellfish/asia-northeast1/test-setDataVersion?version=0",
