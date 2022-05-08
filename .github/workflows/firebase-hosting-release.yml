@@ -1,8 +1,8 @@
-name: Deploy to Firebase Hosting on test
+name: Deploy to Firebase Hosting on release
 'on':
   push:
     branches:
-      - test
+      - release
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
@@ -11,6 +11,6 @@ jobs:
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_AMBERSHELLFISH_TEST }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_AMBERSHELLFISH }}'
           channelId: live
-          projectId: ambershellfish-test
+          projectId: ambershellfish

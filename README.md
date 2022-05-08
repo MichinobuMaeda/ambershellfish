@@ -8,6 +8,7 @@
 - flutter >= 2.10
 - node = 16
 - yarn
+- curl
 
 ## Create this project
 
@@ -24,11 +25,11 @@ https://console.firebase.google.com/
         - Choose or create a Google Analytics account: Create new account
         - New Google Analytics account name : ambershellfish
         - Analytics location: Japan
-        - [ ] Use the default settings for sharing Google Analytics data.
-        - [ ] Google Products and Services
-        - [ ] Benchmarking
-        - [ ] Technical support
-        - [ ] Account specialists
+        - [x] Use the default settings for sharing Google Analytics data.
+        - [x] Google Products and Services
+        - [x] Benchmarking
+        - [x] Technical support
+        - [x] Account specialists
 - Project settings
     - General
         - Default GCP resource location: asia-northeast1 ( Tokyo )
