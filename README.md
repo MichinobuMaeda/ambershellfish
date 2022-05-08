@@ -147,3 +147,56 @@ after
 ```
 "firebase-functions-test": "^0.3.0",
 ```
+
+`.firebaserc `
+
+before
+
+```
+    "default": "ambershellfish"
+```
+
+after
+
+```
+    "default": "ambershellfish-test"
+```
+
+Create tokens.
+
+```
+$ firebase use ambershellfish
+$ firebase login:ci
+
+1//0e...(Token #1)...
+
+$ firebase use ambershellfish-test
+$ firebase login:ci
+
+1//0e...(Token #2)...
+
+```
+Set tokens and apiKeys to GitHub secrets
+
+https://github.com/MichinobuMaeda/ambershellfish/settings
+
+- Settings
+    - Secrets
+        - Actions
+            - FIREBASE_TOKEN_AMBERSHELLFISH: 1//0e...(Token #1)...
+            - FIREBASE_TOKEN_AMBERSHELLFISH_TEST: 1//0e...(Token #2)...
+            - FIREBASE_API_KEY_AMBERSHELLFISH: (apiKey #1)
+            - FIREBASE_API_KEY_AMBERSHELLFISH_TEST: (apiKey #2)
+
+<https://firebase.google.com/docs/flutter/setup?platform=web>
+
+```
+$ dart pub global activate flutterfire_cli
+$ firebase use ambershellfish-test
+$ mv firebase_options.dart lib/config/firebase_options.dart
+$ cp lib/config/firebase_options.dart lib/config/firebase_options_release.dart
+```
+
+Put config of `ambershellfish` to`firebase_options_release.dart`.
+
+Replace `apiKey` of both files to `FIREBASE_API_KEY`.

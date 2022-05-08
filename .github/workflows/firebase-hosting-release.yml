@@ -3,14 +3,98 @@ name: Deploy to Firebase Hosting on release
   push:
     branches:
       - release
+    paths-ignore:
+      - '**/*.md'
+      - .github/workflows/firebase-hosting-merge.yml
+      - .github/workflows/firebase-hosting-pull-request.yml
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
+    env:
+      NODE_VERSION: '16'
+      FLUTTER_VERSION: '2.10.5'
     steps:
       - uses: actions/checkout@v2
+      - uses: dorny/paths-filter@v2
+        id: functionschanged
+        with:
+          base: 'release'
+          filters: |
+            src:
+              - 'functions/**'
+      - name: For release - firebase project
+        run: sed 's/ambershellfish-test/ambershellfish/' -i .firebaserc
+      - name: For release - firebase options
+        run: cp lib/config/firebase_options_release.dart lib/config/firebase_options.dart
+
+      - name: Set firebase api key
+        run: |
+          sed 's/FIREBASE_API_KEY/${{ secrets.FIREBASE_API_KEY_AMBERSHELLFISH }}/' \
+            -i lib/config/firebase_options.dart
+      - name: Set UI version
+        run: |
+          VERSION=`grep 'version:' pubspec.yaml | sed 's/.*\s//'` && \
+            sed "s/for\ test/$VERSION/" -i lib/config/app_info.dart  && \
+            echo "{\"version\":\"$VERSION\"}" > web/version.json && \
+            echo $VERSION
+
+      - name: Cache functions/node_modules
+        uses: actions/cache@v2
+        id: cache-functions-node_modules
+        with:
+          path: functions/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('functions/yarn.lock') }}
+
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        id: cache-node_modules
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+
+      - name: Cache flutter
+        uses: actions/cache@v2
+        id: cache-flutter
+        with:
+          path: ${{ runner.tool_cache }}/flutter
+          key: ${{ runner.os }}-${{ env.FLUTTER_VERSION }}
+
+      - name: Cache flutter packages
+        uses: actions/cache@v2
+        id: cache-flutter-packages
+        with:
+          path: /home/runner/.pub-cache
+          key: ${{ runner.os }}-${{ hashFiles('pubspec.lock') }}
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - run: npm -g i yarn
+      - run: yarn install --frozen-lockfile
+
+      - if: steps.functionschanged.outputs.src == 'true'
+        run: |
+          yarn --cwd functions install --frozen-lockfile && \
+          yarn --cwd functions lint && \
+          yarn --cwd functions test && \
+          yarn deploy --only functions --force \
+            --token "${{ secrets.FIREBASE_TOKEN_AMBERSHELLFISH }}"
+      - run: |
+          yarn deploy --only storage,firestore \
+            --token "${{ secrets.FIREBASE_TOKEN_AMBERSHELLFISH }}"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+      - run: flutter pub get
+      # - run: flutter test
+      - run: flutter build web
+
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_AMBERSHELLFISH }}'
           channelId: live
           projectId: ambershellfish
+      - run: yarn deploy:data

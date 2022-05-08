@@ -4,8 +4,77 @@ jobs:
   build_and_preview:
     if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'
     runs-on: ubuntu-latest
+    env:
+      NODE_VERSION: '16'
+      FLUTTER_VERSION: '2.10.5'
     steps:
       - uses: actions/checkout@v2
+      - uses: dorny/paths-filter@v2
+        id: functionschanged
+        with:
+          filters: |
+            src:
+              - 'functions/**'
+
+      - name: Set firebase api key
+        run: |
+          sed 's/FIREBASE_API_KEY/${{ secrets.FIREBASE_API_KEY_AMBERSHELLFISH_TEST }}/' \
+            -i lib/config/firebase_options.dart
+      - name: Set UI version
+        run: |
+          VERSION=`grep 'version:' pubspec.yaml | sed 's/.*\s//'` && \
+            sed "s/for\ test/$VERSION/" -i lib/config/app_info.dart  && \
+            echo "{\"version\":\"$VERSION\"}" > web/version.json && \
+            echo $VERSION
+
+      - name: Cache functions/node_modules
+        uses: actions/cache@v2
+        id: cache-functions-node_modules
+        with:
+          path: functions/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('functions/yarn.lock') }}
+
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        id: cache-node_modules
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+
+      - name: Cache flutter
+        uses: actions/cache@v2
+        id: cache-flutter
+        with:
+          path: ${{ runner.tool_cache }}/flutter
+          key: ${{ runner.os }}-${{ env.FLUTTER_VERSION }}
+
+      - name: Cache flutter packages
+        uses: actions/cache@v2
+        id: cache-flutter-packages
+        with:
+          path: /home/runner/.pub-cache
+          key: ${{ runner.os }}-${{ hashFiles('pubspec.lock') }}
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - run: npm -g i yarn
+      - run: yarn install --frozen-lockfile
+
+      - if: steps.functionschanged.outputs.src == 'true'
+        run: |
+          yarn --cwd functions install --frozen-lockfile && \
+          yarn --cwd functions lint && \
+          yarn --cwd functions test
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+      - run: flutter pub get
+      # - run: flutter test
+      - run: flutter build web
+
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
