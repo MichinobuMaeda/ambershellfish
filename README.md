@@ -49,11 +49,19 @@ https://console.firebase.google.com/
                 - Amount
                     - Budget type: Specified amount
                     - Target amount:
-- Authentifation
+- Authentication
     - Email/Password: Enable
     - Email link (passwordless sign-in): Enable
 - Cloud Firestore
     - Start in production mode
+
+for test
+
+- Add project
+    - Project name: ambershellfish-test
+- Project settings
+    - General
+        - Environment Type: Unspecified
 
 https://github.com/MichinobuMaeda?tab=repositories
 
@@ -118,4 +126,23 @@ $ rm build/web/404.html
 $ rm build/web/index.html
 $ git add .
 $ git commit -m "set up firebase env."
+```
+
+VS code 'Ctrl + Shift + P' Preferences: Open Workspace Settings
+
+- Extentions
+    - ESLint > Lint Task Options: --config functions/.eslintrc.js functions/src/*.ts
+
+`functions/package.json`
+
+before
+
+```
+"firebase-functions-test": "^0.2.0",
+```
+
+after
+
+```
+"firebase-functions-test": "^0.3.0",
 ```

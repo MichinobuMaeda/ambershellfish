@@ -5,27 +5,29 @@ module.exports = {
     node: true,
   },
   extends: [
-    "eslint:recommended",
-    "plugin:import/errors",
-    "plugin:import/warnings",
-    "plugin:import/typescript",
-    "google",
-    "plugin:@typescript-eslint/recommended",
+    "airbnb/base",
+    "airbnb-typescript/base",
   ],
-  parser: "@typescript-eslint/parser",
   parserOptions: {
-    project: ["tsconfig.json", "tsconfig.dev.json"],
+    project: [
+      "**/tsconfig.json",
+      "**/tsconfig.dev.json",
+    ],
     sourceType: "module",
   },
   ignorePatterns: [
-    "/lib/**/*", // Ignore built files.
+    "/lib/**/*",
+    "/*.js",
   ],
   plugins: [
     "@typescript-eslint",
-    "import",
   ],
   rules: {
-    "quotes": ["error", "double"],
-    "import/no-unresolved": 0,
+    "react/function-component-definition": "off",
+    "import/no-extraneous-dependencies": "off",
+    "import/prefer-default-export": "off",
+    "no-nested-ternary": "off",
+    "import/no-extraneous-dependencies": "off",
+    "@typescript-eslint/lines-between-class-members": "off"
   },
 };

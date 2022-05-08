@@ -1,0 +1,3 @@
+{
+    "eslint.lintTask.options": "--config functions/.eslintrc.js functions/src/*.ts"
+}
