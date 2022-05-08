@@ -116,5 +116,6 @@ https://github.com/settings/connections/applications/89cf50f02ac6aaed3484
 
 $ rm build/web/404.html
 $ rm build/web/index.html
-
+$ git add .
+$ git commit -m "set up firebase env."
 ```
