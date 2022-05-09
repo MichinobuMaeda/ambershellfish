@@ -77,7 +77,7 @@ jobs:
           yarn --cwd functions install --frozen-lockfile && \
           yarn --cwd functions lint && \
           yarn --cwd functions test && \
-          yarn deploy --only functions --force \
+          yarn deploy --only functions:admin --force \
             --token "${{ secrets.FIREBASE_TOKEN_AMBERSHELLFISH }}"
       - run: |
           yarn deploy --only storage,firestore \

@@ -9,7 +9,7 @@ module.exports = {
   ],
   coveragePathIgnorePatterns: [
     "index.[jt]s",
-    "production.[jt]s",
+    "admin.[jt]s",
     "test.[jt]s",
   ]
 };

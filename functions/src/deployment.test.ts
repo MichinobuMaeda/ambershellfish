@@ -58,7 +58,7 @@ describe('deployment', () => {
     await deployment(
       firebase,
       test().firestore.makeDocumentSnapshot(
-        { version: null },
+        { version: null, updatedAt: new Date() },
         'service/deployment',
       ),
     );
@@ -86,7 +86,7 @@ describe('deployment', () => {
     await deployment(
       firebase,
       test().firestore.makeDocumentSnapshot(
-        { version: 0 },
+        { version: 0, updatedAt: new Date() },
         'service/deployment',
       ),
     );
@@ -105,6 +105,7 @@ describe('deployment', () => {
 
     const conf = await db.collection('service').doc('conf').get();
     expect(conf.data()).toMatchObject(initialConf);
+    expect(conf.get('seed')).toHaveLength(256);
 
     const doc = await db.collection('service').doc('deployment').get();
     expect(doc.get('version')).toEqual(1);
@@ -115,7 +116,7 @@ describe('deployment', () => {
     await deployment(
       firebase,
       test().firestore.makeDocumentSnapshot(
-        { version: 1 },
+        { version: 1, updatedAt: new Date() },
         'service/deployment',
       ),
     );
@@ -141,7 +142,7 @@ describe('deployment', () => {
     await deployment(
       firebase,
       test().firestore.makeDocumentSnapshot(
-        { version: 2 },
+        { version: 2, updatedAt: new Date() },
         'service/deployment',
       ),
     );

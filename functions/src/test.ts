@@ -10,6 +10,7 @@ export const setDataVersion = region(
     const db = firebase.firestore();
     await db.collection('service').doc('deployment').set({
       version,
+      updatedAt: new Date(),
     });
     logger.info(`Set version: ${version}`);
     res.send(`Set version: ${version}\n`);
@@ -37,5 +38,5 @@ export const clearAll = async () => {
       ),
     ),
   );
-  batch.commit();
+  await batch.commit();
 };
