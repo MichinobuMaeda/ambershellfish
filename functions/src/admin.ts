@@ -12,22 +12,30 @@ export const deployment = region(
   (snap) => deploymentFunc(firebase, snap),
 );
 
-export const createAccount = region(
+export const onCreateAccount = region(
+  config().region,
+).firestore.document('accounts/{accountId}').onCreate(
+  (doc) => accounts.onCreateAccount(firebase, doc),
+);
+
+export const onUpdateAccount = region(
+  config().region,
+).firestore.document('accounts/{accountId}').onUpdate(
+  (chane) => accounts.onUpdateAccount(firebase, chane),
+);
+
+export const invite = region(
   config().region,
 ).https.onCall(
-  async (data, context) => requireAdminAccount(
+  (data, context) => requireAdminAccount(
     firebase,
     context.auth?.uid,
-    accounts.createAccount(data),
+    accounts.invite(data),
   ),
 );
 
-export const updateEmail = region(
+export const getToken = region(
   config().region,
 ).https.onCall(
-  async (data, context) => requireAdminAccount(
-    firebase,
-    context.auth?.uid,
-    accounts.updateEmail(data),
-  ),
+  (data) => accounts.getToken(firebase, data),
 );

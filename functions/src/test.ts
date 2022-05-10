@@ -20,11 +20,11 @@ export const setDataVersion = region(
 export const clearAll = async () => {
   const auth = firebase.auth();
   const userList = await auth.listUsers();
-  if (userList.users) {
-    await auth.deleteUsers(
-      userList.users.map((user) => user.uid),
-    );
-  }
+  await Promise.all(
+    (userList.users || []).map(
+      (user) => auth.deleteUser(user.uid),
+    ),
+  );
 
   const db = firebase.firestore();
   const batch = db.batch();

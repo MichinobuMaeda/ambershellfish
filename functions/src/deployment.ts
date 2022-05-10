@@ -1,8 +1,6 @@
 import { config, logger } from 'firebase-functions';
 import { app, firestore } from 'firebase-admin';
 
-import { createAccount } from './accounts';
-
 const deployment = async (
   firebase: app.App,
   snap: firestore.QueryDocumentSnapshot,
@@ -28,21 +26,6 @@ const deployment = async (
       updatedBy: 'system',
     };
 
-    const { id } = await createAccount({
-      name: 'Primary user',
-      email: config().initial.email,
-      admin: true,
-      tester: true,
-    })(firebase, 'system');
-
-    await auth.updateUser(
-      id,
-      {
-        password: config().initial.password,
-        emailVerified: true,
-      },
-    );
-
     const { randomBytes } = await import('node:crypto');
 
     const batch = db.batch();
@@ -53,8 +36,25 @@ const deployment = async (
         version: '1.0.0+0',
         url: config().initial.url,
         seed: randomBytes(128).toString('hex'),
+        invExp: 10 * 24 * 3600 * 1000,
       },
     );
+
+    const user = await auth.createUser({
+      displayName: 'Primary user',
+      email: config().initial.email,
+      emailVerified: true,
+      password: config().initial.password,
+    });
+
+    await db.collection('accounts').add({
+      ...docInfo,
+      name: user.displayName,
+      email: user.email,
+      valid: true,
+      admin: true,
+      tester: true,
+    });
 
     batch.set(snap.ref, { version, updatedAt: new Date() });
     await batch.commit();
