@@ -1,7 +1,73 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:universal_html/html.dart' as html;
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:go_router/go_router.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'blocs/all_blocs_observer.dart';
+import 'blocs/accounts_bloc.dart';
+import 'blocs/auth_bloc.dart';
+import 'blocs/conf_bloc.dart';
+import 'blocs/groups_bloc.dart';
+import 'blocs/user_bloc.dart';
+import 'blocs/platform_bloc.dart';
+import 'config/app_info.dart';
+import 'config/firebase_options.dart';
+import 'config/l10n.dart';
+import 'utils/env.dart';
+import 'router.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await useFirebaseEmulators(
+    version,
+    FirebaseAuth.instance,
+    FirebaseFirestore.instance,
+    FirebaseFunctions.instance,
+    firebase_storage.FirebaseStorage.instance,
+  );
+
+  final SharedPreferences localPreferences =
+      await SharedPreferences.getInstance();
+
+  BlocOverrides.runZoned(
+    () {
+      runApp(
+        MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              lazy: false,
+              create: (_) => PlatformBloc(html.window, localPreferences),
+            ),
+            BlocProvider(lazy: false, create: (_) => ConfBloc()),
+            BlocProvider(lazy: false, create: (_) => AuthBloc()),
+            BlocProvider(lazy: false, create: (_) => UserBloc()),
+            BlocProvider(lazy: false, create: (_) => AccountsBloc()),
+            BlocProvider(lazy: false, create: (_) => GroupsBloc()),
+          ],
+          child: Builder(
+            builder: (context) {
+              context.read<ConfBloc>().add(ConfListenStart());
+              context.read<AuthBloc>().add(AuthListenStart(context));
+
+              return const MyApp();
+            },
+          ),
+        ),
+      );
+    },
+    blocObserver: AllBlocsObserver(),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -11,9 +77,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    final UserBloc userBloc = context.read<UserBloc>();
+    final router = GoRouter(
+      routerNeglect: true,
+      refreshListenable: GoRouterRefreshStream(userBloc.stream),
+      initialLocation: routeLoading,
+      routes: routes,
+      errorBuilder: routeErrorBuilder,
+      redirect: guard(userBloc),
+    );
+    return MaterialApp.router(
       title: _title,
-      home: const MyHomePage(),
       theme: ThemeData(
         colorSchemeSeed: Colors.amber,
       ),
@@ -21,56 +95,11 @@ class MyApp extends StatelessWidget {
         colorSchemeSeed: Colors.amber,
         brightness: Brightness.dark,
       ),
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({Key? key}) : super(key: key);
-// [SliverAppBar]s are typically used in [CustomScrollView.slivers], which in
-// turn can be placed in a [Scaffold.body].
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: <Widget>[
-          const SliverAppBar(
-            pinned: false,
-            snap: true,
-            floating: true,
-            expandedHeight: 160.0,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'Amber Shellfish',
-                style: TextStyle(color: Colors.white70),
-              ),
-              background: Image(image: AssetImage('images/logo.png')),
-            ),
-          ),
-          const SliverToBoxAdapter(
-            child: SizedBox(
-              height: 20,
-              child: Center(
-                child: Text('Scroll to see the SliverAppBar in effect.'),
-              ),
-            ),
-          ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (BuildContext context, int index) {
-                return Container(
-                  color: index.isOdd ? Colors.black12 : Colors.white10,
-                  height: 64.0,
-                  child: Center(
-                    child: Text('$index', textScaleFactor: 3),
-                  ),
-                );
-              },
-              childCount: 4,
-            ),
-          ),
-        ],
-      ),
+      localizationsDelegates: L10n.localizationsDelegates,
+      supportedLocales: L10n.supportedLocales,
+      locale: const Locale('ja', 'JP'),
+      routerDelegate: router.routerDelegate,
+      routeInformationParser: router.routeInformationParser,
     );
   }
 }

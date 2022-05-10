@@ -1,19 +1,22 @@
-import { config, region, logger } from 'firebase-functions';
+import { config, region } from 'firebase-functions';
+import { firestore } from 'firebase-admin';
 
 import firebase from './firebase';
+import deployment from './deployment';
 
-export const setDataVersion = region(
+export const setTestData = region(
   config().region,
 ).https.onRequest(
   async (req, res): Promise<void> => {
-    const version = Number(req.query.version || 0);
     const db = firebase.firestore();
-    await db.collection('service').doc('deployment').set({
-      version,
+    const ref = db.collection('service').doc('deployment');
+    await ref.set({
+      version: 0,
       updatedAt: new Date(),
     });
-    logger.info(`Set version: ${version}`);
-    res.send(`Set version: ${version}\n`);
+
+    await deployment(firebase, await ref.get() as firestore.QueryDocumentSnapshot);
+    res.send('OK\n');
   },
 );
 

@@ -5,10 +5,7 @@ const deployment = async (
   firebase: app.App,
   snap: firestore.QueryDocumentSnapshot,
 ): Promise<void> => {
-  const deleted = snap.data() ?? {
-    version: 0,
-    createdAt: new Date(),
-  };
+  const deleted = snap.data();
   const current = deleted.version || 0;
   logger.info(`Get version: ${current}`);
   await snap.ref.set(deleted);

@@ -6,8 +6,8 @@
     "install:all": "yarn install && yarn --cwd functions install && flutter pub get",
     "build:functions": "yarn --cwd functions lint && yarn --cwd functions build",
     "deploy:data": "firebase firestore:delete -f service/deployment",
-    "test:ver0": "curl http://localhost:5001/ambershellfish/asia-northeast1/test-setDataVersion?version=0",
-    "test:data": "yarn test:ver0 && yarn deploy:data",
+    "test:ver0": "curl http://localhost:5001/ambershellfish-test/asia-northeast1/test-setTestData",
+    "test:data": "yarn test:ver0",
     "test:functions": "firebase emulators:exec --only auth,firestore,storage \"yarn --cwd functions test\"",
     "start": "yarn build:functions && firebase emulators:exec --only auth,functions,firestore,storage --ui \"yarn test:data && flutter run -d chrome --web-port 5000\""
   },
