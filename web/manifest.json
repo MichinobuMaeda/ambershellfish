@@ -1,12 +1,12 @@
 {
-    "name": "ambershellfish",
-    "short_name": "ambershellfish",
+    "name": "Amber Shellfish",
+    "short_name": "Amber Shellfish",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
-    "orientation": "portrait-primary",
+    "background_color": "#FFBF00",
+    "theme_color": "#FFBF00",
+    "description": "Amber Shellfish",
+    "orientation": "any",
     "prefer_related_applications": false,
     "icons": [
         {
