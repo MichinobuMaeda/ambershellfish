@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:firebase_storage/firebase_storage.dart';
 
 bool isTestMode(String version) => version == 'for test';
 
@@ -11,7 +11,7 @@ Future<void> useFirebaseEmulators(
   FirebaseAuth auth,
   FirebaseFirestore db,
   FirebaseFunctions functions,
-  firebase_storage.FirebaseStorage storage,
+  FirebaseStorage storage,
 ) async {
   if (isTestMode(version)) {
     debugPrint('Use emulators.');

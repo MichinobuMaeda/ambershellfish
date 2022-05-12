@@ -6,7 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:go_router/go_router.dart';
 
 import 'blocs/all_blocs_observer.dart';
@@ -19,6 +19,7 @@ import 'blocs/platform_bloc.dart';
 import 'config/app_info.dart';
 import 'config/firebase_options.dart';
 import 'config/l10n.dart';
+import 'config/theme.dart';
 import 'utils/env.dart';
 import 'router.dart';
 
@@ -34,7 +35,7 @@ void main() async {
     FirebaseAuth.instance,
     FirebaseFirestore.instance,
     FirebaseFunctions.instance,
-    firebase_storage.FirebaseStorage.instance,
+    FirebaseStorage.instance,
   );
 
   final SharedPreferences localPreferences =
@@ -73,28 +74,39 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  static const String _title = 'Amber Shellfish';
-
   @override
   Widget build(BuildContext context) {
     final UserBloc userBloc = context.read<UserBloc>();
     final router = GoRouter(
       routerNeglect: true,
       refreshListenable: GoRouterRefreshStream(userBloc.stream),
-      initialLocation: routeLoading,
-      routes: routes,
+      initialLocation: routeString(RouteEntry.loading),
+      routes: routes(context),
       errorBuilder: routeErrorBuilder,
       redirect: guard(userBloc),
     );
+
+    final ThemeData theme = ThemeData(
+      colorSchemeSeed: colorSchemeSeed,
+      fontFamily: fontFamilySansSerif,
+      elevatedButtonTheme: ElevatedButtonThemeData(style: buttonStyle),
+      outlinedButtonTheme: OutlinedButtonThemeData(style: buttonStyle),
+      snackBarTheme: snackBarTheme(context),
+    );
+
+    final ThemeData darkTheme = ThemeData(
+      colorSchemeSeed: colorSchemeSeed,
+      brightness: Brightness.dark,
+      fontFamily: fontFamilySansSerif,
+      elevatedButtonTheme: ElevatedButtonThemeData(style: buttonStyle),
+      outlinedButtonTheme: OutlinedButtonThemeData(style: buttonStyle),
+      snackBarTheme: snackBarTheme(context),
+    );
+
     return MaterialApp.router(
-      title: _title,
-      theme: ThemeData(
-        colorSchemeSeed: Colors.amber,
-      ),
-      darkTheme: ThemeData(
-        colorSchemeSeed: Colors.amber,
-        brightness: Brightness.dark,
-      ),
+      title: appName,
+      theme: theme,
+      darkTheme: darkTheme,
       localizationsDelegates: L10n.localizationsDelegates,
       supportedLocales: L10n.supportedLocales,
       locale: const Locale('ja', 'JP'),

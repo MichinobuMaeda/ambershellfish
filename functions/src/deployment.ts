@@ -34,6 +34,34 @@ const deployment = async (
         url: config().initial.url,
         seed: randomBytes(128).toString('hex'),
         invExp: 10 * 24 * 3600 * 1000,
+        policy: `
+# Privacy policy
+
+## headline level 2
+
+<https://example.com>
+
+[link](https://example.com)
+
+The quick brown fox jumps over the lazy dog.
+The quick brown fox jumps over the lazy dog.
+The quick brown fox jumps over the lazy dog.
+The quick brown fox jumps over the lazy dog.
+The quick brown fox jumps over the lazy dog.
+The quick brown fox jumps over the lazy dog.
+
+- list item 1
+- list item 2
+- list item 3
+- list item 4
+
+\`\`\`
+code block 1
+code block 2
+code block 3
+code block 4
+\`\`\`
+`,
       },
     );
 

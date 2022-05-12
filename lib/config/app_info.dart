@@ -1,3 +1,3 @@
-const String appName = 'Amber pencil';
+const String appName = 'Amber Shellfish';
 const String version = 'for test';
-const String copyright = 'Copyright 2021 Michinobu Maeda';
+const String copyright = 'Copyright 2022 Michinobu Maeda';

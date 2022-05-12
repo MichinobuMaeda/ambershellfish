@@ -23,6 +23,8 @@ dependencies:
   go_router: ^3.1.0
   shared_preferences: ^2.0.13
   universal_html: ^2.0.8
+  flutter_markdown: ^0.6.10
+  url_launcher: ^6.1.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

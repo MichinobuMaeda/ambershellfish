@@ -2,141 +2,100 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'blocs/user_bloc.dart';
 import 'config/l10n.dart';
-import 'views/layout.dart';
+import 'views/app_page.dart';
 
-const String routeLoading = '/loading';
-const String routeSignin = '/signin';
-const String routeHome = '/';
-const String routeAdmin = '/admin';
-const String routePrefs = '/prefs';
-const String routeInfo = '/info';
+enum RouteEntry {
+  loading,
+  signin,
+  home,
+  admin,
+  prefs,
+  info,
+}
 
-List<String> authorizedRoutes(UserState userState) {
+String routeString(RouteEntry e) => e == RouteEntry.home ? '/' : '/${e.name}';
+
+List<RouteEntry> authorizedRoutes(UserState userState) {
   if (userState.confReceived && userState.authStateChecked) {
     if (userState.authUser == null || userState.me == null) {
       return [
-        routeSignin,
-        routeInfo,
+        RouteEntry.signin,
+        RouteEntry.info,
       ];
     } else {
       return [
-        routeHome,
-        routePrefs,
-        if (userState.me!.admin) routeAdmin,
-        routeInfo,
+        RouteEntry.home,
+        RouteEntry.prefs,
+        if (userState.me!.admin) RouteEntry.admin,
+        RouteEntry.info,
       ];
     }
   } else {
     return [
-      routeLoading,
-      routeInfo,
+      RouteEntry.loading,
+      RouteEntry.info,
     ];
   }
 }
 
-class PageItem {
+class RouteItem {
   final Icon icon;
   final String label;
 
-  const PageItem({
+  const RouteItem({
     required this.icon,
     required this.label,
   });
 }
 
-PageItem getPage(BuildContext context, String route) {
-  const PageItem errorPage = PageItem(
-    icon: Icon(Icons.error),
-    label: 'Error',
-  );
+Map<RouteEntry, RouteItem> routeItems(BuildContext context) => {
+      RouteEntry.loading: RouteItem(
+        icon: const Icon(Icons.autorenew),
+        label: L10n.of(context)?.connecting ?? '',
+      ),
+      RouteEntry.signin: RouteItem(
+        icon: const Icon(Icons.login),
+        label: L10n.of(context)?.signIn ?? '',
+      ),
+      RouteEntry.home: RouteItem(
+        icon: const Icon(Icons.home),
+        label: L10n.of(context)?.home ?? '',
+      ),
+      RouteEntry.admin: RouteItem(
+        icon: const Icon(Icons.handyman),
+        label: L10n.of(context)?.admin ?? '',
+      ),
+      RouteEntry.prefs: RouteItem(
+        icon: const Icon(Icons.settings),
+        label: L10n.of(context)?.settings ?? '',
+      ),
+      RouteEntry.info: RouteItem(
+        icon: const Icon(Icons.info),
+        label: L10n.of(context)?.aboutApp ?? '',
+      ),
+    };
 
-  try {
-    switch (route) {
-      case routeLoading:
-        return PageItem(
-          icon: const Icon(Icons.autorenew),
-          label: L10n.of(context)!.connecting,
-        );
-      case routeSignin:
-        return PageItem(
-          icon: const Icon(Icons.login),
-          label: L10n.of(context)!.signIn,
-        );
-      case routeHome:
-        return PageItem(
-          icon: const Icon(Icons.home),
-          label: L10n.of(context)!.home,
-        );
-      case routeAdmin:
-        return PageItem(
-          icon: const Icon(Icons.handyman),
-          label: L10n.of(context)!.admin,
-        );
-      case routePrefs:
-        return PageItem(
-          icon: const Icon(Icons.settings),
-          label: L10n.of(context)!.settings,
-        );
-      case routeInfo:
-        return PageItem(
-          icon: const Icon(Icons.info),
-          label: L10n.of(context)!.aboutApp,
-        );
-      default:
-        return errorPage;
-    }
-  } catch (e) {
-    return errorPage;
-  }
-}
-
-final List<GoRoute> routes = [
-  GoRoute(
-    path: routeLoading,
-    pageBuilder: (context, state) => const NoTransitionPage<void>(
-      child: Layout(title: 'Amber Shellfish'),
-    ),
-  ),
-  GoRoute(
-    path: routeSignin,
-    pageBuilder: (context, state) => const NoTransitionPage<void>(
-      child: Layout(title: 'Amber Shellfish'),
-    ),
-  ),
-  GoRoute(
-    path: routeHome,
-    pageBuilder: (context, state) => const NoTransitionPage<void>(
-      child: Layout(title: 'Amber Shellfish'),
-    ),
-  ),
-  GoRoute(
-    path: routeAdmin,
-    pageBuilder: (context, state) => const NoTransitionPage<void>(
-      child: Layout(title: 'Amber Shellfish'),
-    ),
-  ),
-  GoRoute(
-    path: routePrefs,
-    pageBuilder: (context, state) => const NoTransitionPage<void>(
-      child: Layout(title: 'Amber Shellfish'),
-    ),
-  ),
-  GoRoute(
-    path: routeInfo,
-    pageBuilder: (context, state) => const NoTransitionPage<void>(
-      child: Layout(title: 'Amber Shellfish'),
-    ),
-  ),
-];
+List<GoRoute> routes(BuildContext contexst) => RouteEntry.values
+    .map(
+      (route) => GoRoute(
+        path: routeString(route),
+        pageBuilder: (context, state) => NoTransitionPage<void>(
+          child: AppPage(
+            key: Key('Layout: ${routeString(route)}'),
+            route: route,
+          ),
+        ),
+      ),
+    )
+    .toList();
 
 Widget routeErrorBuilder(BuildContext context, GoRouterState state) =>
-    const Layout(title: 'Amber Shellfish');
+    const AppPage(route: RouteEntry.loading);
 
 String? Function(GoRouterState) guard(UserBloc userBloc) =>
     (GoRouterState state) {
-      final List<String> activeRoutes = authorizedRoutes(userBloc.state);
-      if (!activeRoutes.contains(state.subloc)) {
-        return activeRoutes[0];
-      }
-      return null;
+      List<RouteEntry> routes = authorizedRoutes(userBloc.state);
+      return routes.map((route) => routeString(route)).contains(state.subloc)
+          ? null
+          : routeString(routes[0]);
     };
